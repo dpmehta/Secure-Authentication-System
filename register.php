@@ -1,35 +1,37 @@
 <?php
-  $showAlert = false;
-  $showError = false;
-  $message = '';
-  if($_SERVER['REQUEST_METHOD'] == 'POST'){
+$showAlert = false;
+$showError = false;
+$message = '';
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     include 'partials/dbConnect.php';
+
     $username = $_POST['username'];
     $password = $_POST['password'];
     $cpassword = $_POST['cpassword'];
 
-    $exists = "SELECT * FROM users WHERE username = '$username'";
-    $existResult = mysqli_query($conn,$exists);
+    $existsQuery = "SELECT * FROM users WHERE username = '$username'";
+    $existResult = mysqli_query($conn, $existsQuery);
     $rows = mysqli_num_rows($existResult);
-    if($password == $cpassword && $rows<1){
-      $hash = password_hash($password,PASSWORD_DEFAULT);
-      $sql = "INSERT INTO `users` (`username`, `password`, `date`) VALUES ('$username', '$hash', current_timestamp())";
-      $result = mysqli_query($conn, $sql);
-      if($result){
-       $showAlert = true;
-      }
-    }else{
-      if($rows == 1){
-        $showError = true;
-        $message = "Username Already Exists";
-      }else{
-        $showError = true;
-        $message = "Enter Valid Credentials";
-      }
-     
-    }
-  }
 
+    if ($password == $cpassword && $rows < 1) {
+        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+        $insertQuery = "INSERT INTO `users` (`username`, `password`, `date`) VALUES ('$username', '$hashedPassword', current_timestamp())";
+        $result = mysqli_query($conn, $insertQuery);
+
+        if ($result) {
+            $showAlert = true;
+        }
+    } else {
+        if ($rows == 1) {
+            $showError = true;
+            $message = "Username Already Exists";
+        } else {
+            $showError = true;
+            $message = "Enter Valid Credentials";
+        }
+    }
+}
 ?>
 
 
