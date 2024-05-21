@@ -1,34 +1,31 @@
 <?php
-    $showError = false;
-    if($_SERVER['REQUEST_METHOD'] == 'POST'){
-        include 'partials/dbConnect.php';
+$showError = false;
 
-        $username = $_POST['username'];
-        $password = $_POST['password'];
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    include 'partials/dbConnect.php';
 
-        $sql = "SELECT * FROM users WHERE username = '$username'";
-        $existResult = mysqli_query($conn, $sql);
-        $rows = mysqli_num_rows($existResult);
+    $username = mysqli_real_escape_string($conn, $_POST['username']); 
+    $password = mysqli_real_escape_string($conn, $_POST['password']); 
 
-        if($rows == 1){
-            while($row=mysqli_fetch_assoc($existResult)){
-                if(password_verify($password,$row['password'])){
-                  echo "session started";
-                    session_start();
-                    $_SESSION['loggedIn'] = true;
-                    $_SESSION['username'] = $username;
-                    echo "username set";
-                    header('location: welcome.php');
-                }
-                else{
-                    $showError = true;
-                }
-            }
-            
+    $sql = "SELECT * FROM users WHERE username = '$username'";
+    $existResult = mysqli_query($conn, $sql);
+
+    if ($existResult) {
+        $row = mysqli_fetch_assoc($existResult); 
+        if ($row && password_verify($password, $row['password'])) {
+            session_start();
+            $_SESSION['loggedIn'] = true;
+            $_SESSION['username'] = $username;
+            header('location: welcome.php');
+            exit();
+        } else {
+            $showError = true;
         }
+    } else {
+        $showError = true;
     }
+}
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
